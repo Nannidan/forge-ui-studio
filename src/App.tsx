@@ -1,6 +1,20 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MotionConfig } from 'framer-motion'
-import { Check, Code2, Copy, Layers, RotateCcw, Shuffle, Sliders, Sparkles, Wand2 } from 'lucide-react'
+import {
+  Bookmark,
+  Check,
+  Code2,
+  Copy,
+  Layers,
+  Palette,
+  Redo2,
+  RotateCcw,
+  Shuffle,
+  Sliders,
+  Sparkles,
+  Undo2,
+  Wand2,
+} from 'lucide-react'
 import {
   ACCENTS,
   DEFAULT_STATE,
@@ -12,8 +26,15 @@ import {
   type StudioState,
   type SurfaceMode,
 } from './types/studio'
-import { generateAiPrompt, generateReactCode } from './utils/codeGenerator'
+import {
+  generateAiPrompt,
+  generateCssTokens,
+  generateReactCode,
+} from './utils/codeGenerator'
+import { useHistoryState } from './hooks/useHistoryState'
+import { useComponentVault } from './hooks/useComponentVault'
 import { LivePreview } from './components/LivePreview'
+import { VaultDrawer } from './components/VaultDrawer'
 
 const COMPONENTS: { id: ComponentKind; label: string }[] = [
   { id: 'card', label: 'Card' },
@@ -28,14 +49,40 @@ const PADDINGS: PaddingKey[] = ['sm', 'md', 'lg']
 const SHADOWS: ShadowKey[] = ['none', 'md', 'glow']
 
 export default function App() {
-  const [state, setState] = useState<StudioState>(DEFAULT_STATE)
+  const { state, set: setState, undo, redo, reset, canUndo, canRedo } =
+    useHistoryState<StudioState>(DEFAULT_STATE)
+  const { items: vaultItems, saveItem, deleteItem } = useComponentVault()
+
+  const [vaultOpen, setVaultOpen] = useState(false)
   const [mobileTab, setMobileTab] = useState<'tokens' | 'content' | 'export'>('tokens')
-  const [exportTab, setExportTab] = useState<'code' | 'prompt'>('code')
+  const [exportTab, setExportTab] = useState<'code' | 'css' | 'prompt'>('code')
   const [copied, setCopied] = useState(false)
 
   const reactCode = useMemo(() => generateReactCode(state), [state])
+  const cssTokens = useMemo(() => generateCssTokens(state), [state])
   const aiPrompt = useMemo(() => generateAiPrompt(state), [state])
-  const activeOutput = exportTab === 'code' ? reactCode : aiPrompt
+
+  const activeOutput =
+    exportTab === 'code' ? reactCode : exportTab === 'css' ? cssTokens : aiPrompt
+
+  // Keyboard shortcuts: Ctrl/Cmd + Z = Undo, Ctrl/Cmd + Shift + Z = Redo
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!(e.metaKey || e.ctrlKey)) return
+      const tag = (e.target as HTMLElement | null)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+
+      if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        undo()
+      } else if ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') {
+        e.preventDefault()
+        redo()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [undo, redo])
 
   function update<K extends keyof StudioState>(key: K, value: StudioState[K]) {
     setState((prev) => ({ ...prev, [key]: value }))
@@ -233,12 +280,12 @@ export default function App() {
 
   const exportPanel = (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60">
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-800 px-3 py-2">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-3 py-2">
         <div className="flex gap-1 rounded-lg border border-zinc-800 bg-zinc-950 p-0.5">
           <button
             type="button"
             onClick={() => setExportTab('code')}
-            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
               exportTab === 'code'
                 ? 'bg-cyan-500 text-zinc-950'
                 : 'text-zinc-400 hover:text-zinc-100'
@@ -249,8 +296,20 @@ export default function App() {
           </button>
           <button
             type="button"
+            onClick={() => setExportTab('css')}
+            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
+              exportTab === 'css'
+                ? 'bg-cyan-500 text-zinc-950'
+                : 'text-zinc-400 hover:text-zinc-100'
+            }`}
+          >
+            <Palette className="h-3.5 w-3.5" />
+            @theme
+          </button>
+          <button
+            type="button"
             onClick={() => setExportTab('prompt')}
-            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
               exportTab === 'prompt'
                 ? 'bg-cyan-500 text-zinc-950'
                 : 'text-zinc-400 hover:text-zinc-100'
@@ -320,6 +379,42 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-1.5">
+              {/* Undo / Redo */}
+              <div className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-0.5">
+                <button
+                  type="button"
+                  onClick={undo}
+                  disabled={!canUndo}
+                  aria-label="Undo"
+                  title="Undo (Ctrl+Z)"
+                  className="rounded-md p-1.5 text-zinc-300 transition-colors hover:bg-zinc-800 disabled:opacity-30"
+                >
+                  <Undo2 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={redo}
+                  disabled={!canRedo}
+                  aria-label="Redo"
+                  title="Redo (Ctrl+Shift+Z)"
+                  className="rounded-md p-1.5 text-zinc-300 transition-colors hover:bg-zinc-800 disabled:opacity-30"
+                >
+                  <Redo2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setVaultOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1.5 text-xs font-semibold text-cyan-300 transition-colors hover:bg-cyan-500/20"
+              >
+                <Bookmark className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Vault</span>
+                <span className="rounded bg-cyan-500/20 px-1 font-mono text-[10px]">
+                  {vaultItems.length}
+                </span>
+              </button>
+
               <button
                 type="button"
                 onClick={randomizeTokens}
@@ -327,16 +422,16 @@ export default function App() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs font-semibold text-zinc-200 transition-colors hover:border-cyan-500/50"
               >
                 <Shuffle className="h-3.5 w-3.5 text-cyan-400" />
-                <span className="hidden sm:inline">Randomize</span>
+                <span className="hidden xl:inline">Randomize</span>
               </button>
+
               <button
                 type="button"
-                onClick={() => setState(DEFAULT_STATE)}
+                onClick={() => reset(DEFAULT_STATE)}
                 aria-label="Reset studio"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs font-semibold text-zinc-400 transition-colors hover:text-zinc-100"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 p-1.5 text-xs font-semibold text-zinc-400 transition-colors hover:text-zinc-100"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Reset</span>
               </button>
             </div>
           </div>
@@ -387,17 +482,20 @@ export default function App() {
 
           {/* Right / Main Stage: Stretchy Preview + Export */}
           <section className="flex min-w-0 flex-1 flex-col gap-3 lg:min-h-0 2xl:grid 2xl:grid-cols-12">
-            {/* Live Preview (Always Top on Mobile, Stretches on Desktop) */}
+            {/* Live Preview */}
             <div className="lg:min-h-0 lg:flex-1 2xl:col-span-7">
-              <LivePreview state={state} />
+              <LivePreview
+                state={state}
+                onInteractionChange={(next) => update('interaction', next)}
+              />
             </div>
 
-            {/* Desktop Code Drawer (Docked bottom on lg/xl, Side-by-side on 2xl) */}
+            {/* Desktop Code Drawer */}
             <div className="hidden lg:block lg:h-64 lg:shrink-0 2xl:col-span-5 2xl:h-full">
               {exportPanel}
             </div>
 
-            {/* Mobile/Tablet Tabbed Dock (Tokens | Content | Code) */}
+            {/* Mobile/Tablet Tabbed Dock */}
             <div className="flex flex-col gap-3 lg:hidden">
               <div className="grid grid-cols-3 gap-1 rounded-xl border border-zinc-800 bg-zinc-900 p-1">
                 <button
@@ -446,6 +544,17 @@ export default function App() {
             </div>
           </section>
         </main>
+
+        {/* Saved Component Vault Drawer */}
+        <VaultDrawer
+          open={vaultOpen}
+          onClose={() => setVaultOpen(false)}
+          items={vaultItems}
+          currentState={state}
+          onSave={saveItem}
+          onLoad={(loaded) => setState(loaded)}
+          onDelete={deleteItem}
+        />
       </div>
     </MotionConfig>
   )
