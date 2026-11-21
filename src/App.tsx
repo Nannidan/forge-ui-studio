@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import {
   ACCENTS,
+  STUDIO_PRESETS,
   DEFAULT_STATE,
   type AccentKey,
   type ComponentKind,
@@ -39,10 +40,10 @@ import { LivePreview } from './components/LivePreview'
 import { VaultDrawer } from './components/VaultDrawer'
 
 const COMPONENTS: { id: ComponentKind; label: string }[] = [
-  { id: 'card', label: 'Card' },
-  { id: 'button', label: 'Button' },
-  { id: 'alert', label: 'Alert' },
-  { id: 'stat', label: 'Stat Tile' },
+  { id: 'card', label: 'Feature Card' },
+  { id: 'button', label: 'Action Button' },
+  { id: 'alert', label: 'Alert Banner' },
+  { id: 'stat', label: 'Metric Card' },
 ]
 
 const SURFACES: SurfaceMode[] = ['solid', 'glass', 'outline']
@@ -127,8 +128,24 @@ export default function App() {
   const tokensSection = (
     <div className="space-y-4">
       <div>
-        <span className="block font-mono text-[11px] text-zinc-400">ACCENT</span>
-        <div className="mt-2 grid grid-cols-5 gap-1.5 sm:flex sm:flex-wrap">
+        <span className="block font-mono text-[11px] text-zinc-400">Theme Presets</span>
+        <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+          {STUDIO_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => setState((prev) => ({ ...prev, ...preset.state }))}
+              className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-left font-mono text-[11px] text-zinc-300 transition-colors hover:border-cyan-500/50 hover:text-white"
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <span className="block font-mono text-[11px] text-zinc-400">Accent Color Swatches</span>
+        <div className="mt-2 grid grid-cols-3 gap-1.5">
           {(Object.keys(ACCENTS) as AccentKey[]).map((key) => {
             const item = ACCENTS[key]
             const active = state.accent === key
@@ -152,7 +169,7 @@ export default function App() {
       </div>
 
       <div>
-        <span className="block font-mono text-[11px] text-zinc-400">SURFACE</span>
+        <span className="block font-mono text-[11px] text-zinc-400">Card Style</span>
         <div className="mt-1.5 grid grid-cols-3 gap-1.5">
           {SURFACES.map((s) => (
             <button
@@ -172,7 +189,7 @@ export default function App() {
       </div>
 
       <div>
-        <span className="block font-mono text-[11px] text-zinc-400">RADIUS</span>
+        <span className="block font-mono text-[11px] text-zinc-400">Corner Rounding</span>
         <div className="mt-1.5 grid grid-cols-5 gap-1.5">
           {RADII.map((r) => (
             <button
@@ -193,7 +210,7 @@ export default function App() {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <span className="block font-mono text-[11px] text-zinc-400">PADDING</span>
+          <span className="block font-mono text-[11px] text-zinc-400">Inner Spacing</span>
           <div className="mt-1.5 grid grid-cols-3 gap-1">
             {PADDINGS.map((p) => (
               <button
@@ -213,7 +230,7 @@ export default function App() {
         </div>
 
         <div>
-          <span className="block font-mono text-[11px] text-zinc-400">SHADOW</span>
+          <span className="block font-mono text-[11px] text-zinc-400">Shadow Style</span>
           <div className="mt-1.5 grid grid-cols-3 gap-1">
             {SHADOWS.map((sh) => (
               <button
@@ -239,7 +256,7 @@ export default function App() {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
       <div>
         <label htmlFor="badge-input" className="block font-mono text-[11px] text-zinc-400">
-          BADGE
+          Badge Label
         </label>
         <input
           id="badge-input"
@@ -252,7 +269,7 @@ export default function App() {
 
       <div>
         <label htmlFor="title-input" className="block font-mono text-[11px] text-zinc-400">
-          TITLE
+          Heading / Title
         </label>
         <input
           id="title-input"
@@ -265,7 +282,7 @@ export default function App() {
 
       <div className="sm:col-span-2 lg:col-span-1">
         <label htmlFor="sub-input" className="block font-mono text-[11px] text-zinc-400">
-          DESCRIPTION
+          Description
         </label>
         <textarea
           id="sub-input"
@@ -278,7 +295,7 @@ export default function App() {
 
       <div className="sm:col-span-2 lg:col-span-1">
         <label htmlFor="cta-input" className="block font-mono text-[11px] text-zinc-400">
-          BUTTON LABEL
+          Button Text
         </label>
         <input
           id="cta-input"
@@ -305,7 +322,7 @@ export default function App() {
             }`}
           >
             <Code2 className="h-3.5 w-3.5" />
-            JSX
+            React Code
           </button>
           <button
             type="button"
@@ -317,7 +334,7 @@ export default function App() {
             }`}
           >
             <Palette className="h-3.5 w-3.5" />
-            @theme
+            CSS Variables
           </button>
           <button
             type="button"
@@ -440,7 +457,7 @@ export default function App() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1.5 text-xs font-semibold text-cyan-300 transition-colors hover:bg-cyan-500/20"
               >
                 <Bookmark className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Vault</span>
+                <span className="hidden sm:inline">Saved Presets</span>
                 <span className="rounded bg-cyan-500/20 px-1 font-mono text-[10px]">
                   {vaultItems.length}
                 </span>
@@ -511,7 +528,7 @@ export default function App() {
               <div className="mb-3 flex items-center gap-2 border-b border-zinc-800 pb-2.5">
                 <Sliders className="h-4 w-4 text-cyan-400" />
                 <h2 className="font-mono text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                  Design Tokens
+                  Style & Colors
                 </h2>
               </div>
               {tokensSection}
@@ -521,7 +538,7 @@ export default function App() {
               <div className="mb-3 flex items-center gap-2">
                 <Layers className="h-4 w-4 text-cyan-400" />
                 <h2 className="font-mono text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                  Content
+                  Text & Labels
                 </h2>
               </div>
               {contentSection}
