@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>FORGE // UI — COMPONENT & PROMPT STUDIO</title>
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #070b14;
+    --panel: #0b1120;
+    --border: rgba(0, 240, 255, 0.24);
+    --accent: #00f0ff;
+    --accent2: #ff2a85;
+    --fg: #eef7ff;
+    --muted: #7d93b2;
+    --radius: 12px;
+    --glow: 0 0 18px rgba(0, 240, 255, 0.28);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  .top {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .brand { font-weight: 800; font-size: 13px; letter-spacing: 1px; color: var(--accent); }
+  .brand span { color: var(--accent2); }
+  .bar-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  button, select, input[type=text], textarea {
+    font-family: inherit; font-size: 11px; color: var(--fg);
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 7px; padding: 5px 8px;
+  }
+  button { cursor: pointer; transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 180ms ease; }
+  button:active { transform: scale(0.95); }
+  button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,240,255,0.14); }
+  .layout {
+    display: grid; grid-template-columns: 290px minmax(300px, 1fr) 310px;
+    gap: 12px; padding: 12px; max-width: 1440px; margin: 0 auto;
+  }
+  @media (max-width: 1020px) { .layout { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 11px; display: flex; flex-direction: column; gap: 9px;
+  }
+  .sec-title { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 0.8px; text-transform: uppercase; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  label.ctl { display: block; font-size: 10px; color: var(--muted); }
+  label.ctl span { float: right; color: var(--fg); }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin-top: 3px; }
+  input[type=color] { width: 34px; height: 26px; padding: 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: none; }
+  .stage-wrap {
+    min-height: 290px; background: #000000; border: 1px dashed rgba(255,255,255,0.16);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    padding: 20px; position: relative; overflow: hidden; transition: width 260ms ease, margin 260ms ease;
+  }
+  .stage-wrap.mobile { max-width: 375px; margin: 0 auto; width: 100%; }
+  .demo-el {
+    transition:
+      border-radius 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      background 250ms ease,
+      color 250ms ease,
+      border-color 250ms ease;
+  }
+  .demo-el:hover:not(.is-disabled) { transform: translateY(-3px) scale(1.03); }
+  .demo-el.is-disabled { opacity: 0.45; cursor: not-allowed; }
+  @keyframes pulseRing {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.45); }
+    50% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); }
+  }
+  .pulse-on { animation: pulseRing 2.1s infinite; }
+  @keyframes shimmerMove {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer-bar {
+    height: 10px; width: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.06) 75%);
+    background-size: 200% 100%; animation: shimmerMove 1.4s infinite linear;
+  }
+  .wcag-pill { font-size: 10px; padding: 3px 8px; border-radius: 999px; font-weight: 700; border: 1px solid; }
+  textarea.code-out {
+    width: 100%; min-height: 120px; background: #03060c; color: #b8e8ff;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px; font-size: 10px; line-height: 1.45;
+  }
+  .vault-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 92px; overflow-y: auto; }
+  .toast {
+    position: fixed; bottom: 14px; right: 14px; z-index: 50; background: #081526;
+    color: #39ff14; border: 1px solid #39ff14; border-radius: 8px; padding: 7px 12px;
+    font-size: 11px; opacity: 0; pointer-events: none; transition: opacity 200ms ease;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="bar-group">
+    <a href="/" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:11px;">&larr; OPS</a>
+    <div class="brand">FORGE // <span>UI</span></div>
+  </div>
+  <div class="bar-group">
+    <button id="btn-undo">UNDO</button>
+    <button id="btn-redo">REDO</button>
+    <button id="btn-vp-desk" class="active">DESKTOP</button>
+    <button id="btn-vp-mob">MOBILE</button>
+    <button id="btn-reset">RESET</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="card">
+    <div class="sec-title">Theme Presets</div>
+    <div class="row" id="theme-presets">
+      <button data-theme="cyan" class="active">AMOLED CYAN</button>
+      <button data-theme="pink">SYNTH PINK</button>
+      <button data-theme="green">SIGNAL GREEN</button>
+      <button data-theme="hc">HIGH CONTRAST</button>
+    </div>
+
+    <div class="sec-title">Archetype &amp; State</div>
+    <div class="row">
+      <select id="ctl-kind">
+        <option value="button">Action Button</option>
+        <option value="card">Telemetry Card</option>
+        <option value="badge">Status Badge</option>
+        <option value="toggle">Switch Control</option>
+      </select>
+      <select id="ctl-state">
+        <option value="default">Default</option>
+        <option value="loading">Loading</option>
+        <option value="disabled">Disabled</option>
+      </select>
+    </div>
+
+    <label class="ctl">Label Text <input id="ctl-label" type="text" value="DEPLOY NODE // 09" /></label>
+    <label class="ctl">Subtext / Telemetry <input id="ctl-sub" type="text" value="LATENCY 14ms · SYNC LOCKED" /></label>
+
+    <div class="row">
+      <label class="ctl">Accent <input id="ctl-accent" type="color" value="#00f0ff" /></label>
+      <label class="ctl">Secondary <input id="ctl-accent2" type="color" value="#ff2a85" /></label>
+      <label class="ctl">Text <input id="ctl-fg" type="color" value="#eef7ff" /></label>
+      <label class="ctl">Surface <input id="ctl-bg" type="color" value="#081326" /></label>
+    </div>
+
+    <label class="ctl">Border Radius <span id="v-rad">12px</span><input id="ctl-rad" type="range" min="0" max="28" value="12" /></label>
+    <label class="ctl">Glow Intensity <span id="v-glow">22px</span><input id="ctl-glow" type="range" min="0" max="45" value="22" /></label>
+
+    <div class="row">
+      <button id="ctl-pulse" class="active">PULSE RING</button>
+      <button id="ctl-shimmer" class="active">SHIMMER</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span class="sec-title">Spring Preview Stage</span>
+      <span id="wcag-badge" class="wcag-pill">WCAG --</span>
+    </div>
+    <div class="stage-wrap" id="stage-wrap">
+      <div id="preview-mount"></div>
+    </div>
+    <div class="row">
+      <span style="font-size:10px;color:var(--muted)" id="wcag-detail">Contrast ratio check active</span>
+      <button id="btn-trigger">TEST INTERACTION</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">Component Vault (localStorage)</div>
+    <div class="row">
+      <input id="vault-name" type="text" placeholder="Preset name..." style="flex:1;min-width:120px" />
+      <button id="vault-save" class="active">SAVE</button>
+    </div>
+    <div class="vault-list" id="vault-list"></div>
+
+    <div class="row">
+      <div class="bar-group">
+        <button id="exp-jsx" class="active">JSX</button>
+        <button id="exp-prompt">AI PROMPT</button>
+        <button id="exp-json">JSON</button>
+      </div>
+      <button id="btn-copy" class="active">COPY</button>
+    </div>
+    <textarea class="code-out" id="code-out" readonly></textarea>
+    <div class="row">
+      <button id="btn-import-json">LOAD JSON FROM BOX</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">COPIED</div>
+
+<script>
+(() => {
+  const VAULT_KEY = 'forge_ui_vault_v1';
+  const DEFAULTS = {
+    theme: 'cyan',
+    kind: 'button',
+    state: 'default',
+    label: 'DEPLOY NODE // 09',
+    sub: 'LATENCY 14ms · SYNC LOCKED',
+    accent: '#00f0ff',
+    accent2: '#ff2a85',
+    fg: '#eef7ff',
+    bg: '#081326',
+    rad: 12,
+    glow: 22,
+    pulse: true,
+    shimmer: true
+  };
+
+  let state = { ...DEFAULTS };
+  let history = [JSON.stringify(state)];
+  let histIdx = 0;
+  let exportTab = 'jsx';
+  let toggleChecked = true;
+
+  const toast = document.getElementById('toast');
+  function notify(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1400);
+  }
+
+  function hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    const n = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function lum(hex) {
+    const [r, g, b] = hexToRgb(hex).map(v => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  function contrastRatio(fgHex, bgHex) {
+    const l1 = Math.max(lum(fgHex), lum(bgHex));
+    const l2 = Math.min(lum(fgHex), lum(bgHex));
+    return (l1 + 0.05) / (l2 + 0.05);
+  }
+
+  function updateWcag() {
+    const cr = contrastRatio(state.fg, state.bg);
+    const badge = document.getElementById('wcag-badge');
+    const detail = document.getElementById('wcag-detail');
+    const pass = cr >= 4.5;
+    badge.textContent = cr.toFixed(1) + ':1 ' + (pass ? 'WCAG AA' : 'LOW CONTRAST');
+    badge.style.color = pass ? '#39ff14' : '#ff2a85';
+    badge.style.borderColor = pass ? '#39ff14' : '#ff2a85';
+    detail.textContent = pass ? 'Readable contrast ratio (>= 4.5:1)' : 'Raise contrast between text and surface (< 4.5:1)';
+  }
+
+  function generateOutput() {
+    const out = document.getElementById('code-out');
+    if (exportTab === 'json') {
+      out.value = JSON.stringify(state, null, 2);
+      return;
+    }
+    if (exportTab === 'prompt') {
+      out.value =
+        `Build a React + Tailwind "${state.kind}" component with label "${state.label}" ` +
+        `and status "${state.sub}" in "${state.state}" state. Use accent ${state.accent}, ` +
+        `secondary ${state.accent2}, surface ${state.bg}, text ${state.fg}, ` +
+        `${state.rad}px border radius, ${state.glow}px glow, ` +
+        `${state.pulse ? 'pulsing indicator' : 'static border'}, and ` +
+        `${state.shimmer ? 'shimmer loader support' : 'clean surface'}.`;
+      return;
+    }
+    const styleObj = `{ borderRadius: '${state.rad}px', background: '${state.bg}', color: '${state.fg}', border: '1px solid ${state.accent}', boxShadow: '0 0 ${state.glow}px ${state.accent}44' }`;
+    if (state.kind === 'button') {
+      out.value = `<button\n  type="button"\n  disabled={${state.state === 'disabled'}}\n  style={${styleObj}}\n  className="px-5 py-2.5 font-mono text-xs font-bold tracking-wider transition-transform active:scale-95"\n>\n  ${state.state === 'loading' ? 'SYNCING...' : state.label}\n</button>`;
+    } else if (state.kind === 'badge') {
+      out.value = `<span\n  style={${styleObj}}\n  className="inline-flex items-center gap-2 px-3 py-1 font-mono text-xs font-semibold"\n>\n  <i style={{ background: '${state.accent2}' }} className="w-2 h-2 rounded-full" />\n  ${state.label}\n</span>`;
+    } else if (state.kind === 'toggle') {
+      out.value = `<button\n  type="button"\n  role="switch"\n  aria-checked={${toggleChecked}}\n  disabled={${state.state === 'disabled'}}\n  style={${styleObj}}\n  className="px-4 py-2 font-mono text-xs font-bold"\n>\n  ${state.label}: {${toggleChecked} ? 'ON' : 'OFF'}\n</button>`;
+    } else {
+      out.value = `<div\n  style={${styleObj}}\n  className="p-4 font-mono max-w-xs space-y-2"\n>\n  <div className="text-xs font-bold tracking-wider">${state.label}</div>\n  <div className="text-[11px] opacity-75">${state.sub}</div>\n</div>`;
+    }
+  }
+
+  function renderPreview() {
+    document.documentElement.style.setProperty('--accent', state.accent);
+    document.documentElement.style.setProperty('--accent2', state.accent2);
+    document.documentElement.style.setProperty('--fg', state.fg);
+    document.documentElement.style.setProperty('--radius', state.rad + 'px');
+
+    document.getElementById('ctl-kind').value = state.kind;
+    document.getElementById('ctl-state').value = state.state;
+    document.getElementById('ctl-label').value = state.label;
+    document.getElementById('ctl-sub').value = state.sub;
+    document.getElementById('ctl-accent').value = state.accent;
+    document.getElementById('ctl-accent2').value = state.accent2;
+    document.getElementById('ctl-fg').value = state.fg;
+    document.getElementById('ctl-bg').value = state.bg;
+    document.getElementById('ctl-rad').value = state.rad;
+    document.getElementById('ctl-glow').value = state.glow;
+    document.getElementById('v-rad').textContent = state.rad + 'px';
+    document.getElementById('v-glow').textContent = state.glow + 'px';
+    document.getElementById('ctl-pulse').classList.toggle('active', state.pulse);
+    document.getElementById('ctl-shimmer').classList.toggle('active', state.shimmer);
+
+    const mount = document.getElementById('preview-mount');
+    const dis = state.state === 'disabled';
+    const ld = state.state === 'loading';
+    const baseStyle = `border-radius:${state.rad}px;background:${state.bg};color:${state.fg};border:1px solid ${state.accent};box-shadow:0 0 ${state.glow}px ${state.accent}44;`;
+
+    if (state.kind === 'button') {
+      mount.innerHTML = `<button class="demo-el ${dis ? 'is-disabled' : ''} ${state.pulse ? 'pulse-on' : ''}" style="${baseStyle}padding:11px 20px;font-weight:700;letter-spacing:0.8px;">${ld ? 'LOADING...' : state.label}</button>`;
+    } else if (state.kind === 'badge') {
+      mount.innerHTML = `<div class="demo-el ${dis ? 'is-disabled' : ''}" style="${baseStyle}padding:6px 14px;display:inline-flex;align-items:center;gap:8px;font-weight:700;"><span style="width:8px;height:8px;border-radius:50%;background:${state.accent2};display:inline-block"></span>${state.label}</div>`;
+    } else if (state.kind === 'toggle') {
+      mount.innerHTML = `<button class="demo-el ${dis ? 'is-disabled' : ''}" style="${baseStyle}padding:9px 16px;display:inline-flex;align-items:center;gap:10px;font-weight:700;"><span>${state.label}</span><span style="padding:2px 7px;border-radius:99px;background:${toggleChecked ? state.accent : 'rgba(255,255,255,0.12)'};color:#000;font-size:10px;">${toggleChecked ? 'ON' : 'OFF'}</span></button>`;
+    } else {
+      mount.innerHTML = `<div class="demo-el ${dis ? 'is-disabled' : ''} ${state.pulse ? 'pulse-on' : ''}" style="${baseStyle}padding:14px 16px;min-width:220px;max-width:290px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">${state.label}</div><div style="font-size:10px;opacity:0.8;margin-bottom:8px;">${state.sub}</div>${(ld || state.shimmer) ? '<div class="shimmer-bar"></div>' : ''}</div>`;
+    }
+
+    updateWcag();
+    generateOutput();
+  }
+
+  function commit(nextPartial) {
+    state = { ...state, ...nextPartial };
+    const snap = JSON.stringify(state);
+    if (history[histIdx] !== snap) {
+      history = history.slice(0, histIdx + 1);
+      history.push(snap);
+      histIdx = history.length - 1;
+    }
+    renderPreview();
+  }
+
+  function loadVault() {
+    const list = document.getElementById('vault-list');
+    list.innerHTML = '';
+    let items = [];
+    try { items = JSON.parse(localStorage.getItem(VAULT_KEY) || '[]'); } catch {}
+    items.forEach((entry, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = entry.name;
+      btn.onclick = () => commit(entry.data);
+      btn.ondblclick = () => {
+        items.splice(i, 1);
+        localStorage.setItem(VAULT_KEY, JSON.stringify(items));
+        loadVault();
+        notify('REMOVED');
+      };
+      list.appendChild(btn);
+    });
+  }
+
+  document.querySelectorAll('#theme-presets button').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('#theme-presets button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const t = b.dataset.theme;
+      if (t === 'pink') commit({ theme: t, accent: '#ff2a85', accent2: '#00f0ff', bg: '#140612', fg: '#fff0f7' });
+      else if (t === 'green') commit({ theme: t, accent: '#39ff14', accent2: '#ffb800', bg: '#051108', fg: '#ecfff0' });
+      else if (t === 'hc') commit({ theme: t, accent: '#ffffff', accent2: '#00f0ff', bg: '#000000', fg: '#ffffff' });
+      else commit({ theme: 'cyan', accent: '#00f0ff', accent2: '#ff2a85', bg: '#081326', fg: '#eef7ff' });
+    };
+  });
+
+  document.getElementById('ctl-kind').onchange = e => commit({ kind: e.target.value });
+  document.getElementById('ctl-state').onchange = e => commit({ state: e.target.value });
+  document.getElementById('ctl-label').oninput = e => commit({ label: e.target.value });
+  document.getElementById('ctl-sub').oninput = e => commit({ sub: e.target.value });
+  document.getElementById('ctl-accent').oninput = e => commit({ accent: e.target.value });
+  document.getElementById('ctl-accent2').oninput = e => commit({ accent2: e.target.value });
+  document.getElementById('ctl-fg').oninput = e => commit({ fg: e.target.value });
+  document.getElementById('ctl-bg').oninput = e => commit({ bg: e.target.value });
+  document.getElementById('ctl-rad').oninput = e => commit({ rad: +e.target.value });
+  document.getElementById('ctl-glow').oninput = e => commit({ glow: +e.target.value });
+  document.getElementById('ctl-pulse').onclick = () => commit({ pulse: !state.pulse });
+  document.getElementById('ctl-shimmer').onclick = () => commit({ shimmer: !state.shimmer });
+
+  document.getElementById('btn-undo').onclick = () => {
+    if (histIdx > 0) { histIdx--; state = JSON.parse(history[histIdx]); renderPreview(); }
+  };
+  document.getElementById('btn-redo').onclick = () => {
+    if (histIdx < history.length - 1) { histIdx++; state = JSON.parse(history[histIdx]); renderPreview(); }
+  };
+  document.getElementById('btn-reset').onclick = () => commit({ ...DEFAULTS });
+
+  document.getElementById('btn-vp-desk').onclick = () => {
+    document.getElementById('stage-wrap').classList.remove('mobile');
+    document.getElementById('btn-vp-desk').classList.add('active');
+    document.getElementById('btn-vp-mob').classList.remove('active');
+  };
+  document.getElementById('btn-vp-mob').onclick = () => {
+    document.getElementById('stage-wrap').classList.add('mobile');
+    document.getElementById('btn-vp-mob').classList.add('active');
+    document.getElementById('btn-vp-desk').classList.remove('active');
+  };
+
+  document.getElementById('btn-trigger').onclick = () => {
+    toggleChecked = !toggleChecked;
+    commit({ state: state.state === 'loading' ? 'default' : 'loading' });
+    setTimeout(() => commit({ state: 'default' }), 900);
+  };
+
+  document.getElementById('vault-save').onclick = () => {
+    const name = (document.getElementById('vault-name').value || ('Preset ' + (Date.now() % 1000))).trim();
+    let items = [];
+    try { items = JSON.parse(localStorage.getItem(VAULT_KEY) || '[]'); } catch {}
+    items.unshift({ name, data: { ...state } });
+    localStorage.setItem(VAULT_KEY, JSON.stringify(items.slice(0, 20)));
+    document.getElementById('vault-name').value = '';
+    loadVault();
+    notify('SAVED TO VAULT');
+  };
+
+  ['jsx', 'prompt', 'json'].forEach(t => {
+    document.getElementById('exp-' + t).onclick = () => {
+      exportTab = t;
+      ['jsx', 'prompt', 'json'].forEach(x => document.getElementById('exp-' + x).classList.toggle('active', x === t));
+      generateOutput();
+    };
+  });
+
+  document.getElementById('btn-copy').onclick = () => {
+    const val = document.getElementById('code-out').value;
+    navigator.clipboard?.writeText(val).catch(() => {});
+    notify('COPIED ' + exportTab.toUpperCase());
+  };
+
+  document.getElementById('btn-import-json').onclick = () => {
+    try {
+      const parsed = JSON.parse(document.getElementById('code-out').value);
+      commit(parsed);
+      notify('JSON LOADED');
+    } catch {
+      notify('INVALID JSON');
+    }
+  };
+
+  loadVault();
+  renderPreview();
+})();
+</script>
+</body>
+</html>
