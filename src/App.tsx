@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { MotionConfig } from 'framer-motion'
 import {
+  ArrowLeft,
   Bookmark,
   Check,
   Code2,
@@ -376,6 +377,14 @@ export default function App() {
         <header className="sticky top-0 z-30 shrink-0 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md">
           <div className="flex items-center justify-between gap-2 px-3 py-2.5 sm:px-5">
             <div className="flex items-center gap-2">
+              <a
+                href="https://portfolio-hub-44jc.vercel.app/"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 font-mono text-xs font-medium text-zinc-300 transition-colors hover:border-cyan-500/50 hover:text-white"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 text-cyan-400" />
+                <span>Portfolio</span>
+              </a>
+              <div className="h-5 w-px bg-zinc-800" />
               <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-500/40 bg-cyan-500/15 text-cyan-400">
                 <Sparkles className="h-3.5 w-3.5" />
               </div>
