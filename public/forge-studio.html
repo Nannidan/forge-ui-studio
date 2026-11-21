@@ -15,7 +15,7 @@
     --fg: #eef7ff;
     --muted: #7d93b2;
     --radius: 12px;
-    --glow: 0 0 18px rgba(0, 240, 255, 0.28);
+    --glow: 22px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -29,8 +29,8 @@
     padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border);
     position: sticky; top: 0; z-index: 20;
   }
-  .brand { font-weight: 800; font-size: 13px; letter-spacing: 1px; color: var(--accent); }
-  .brand span { color: var(--accent2); }
+  .brand { font-weight: 800; font-size: 13px; letter-spacing: 1px; color: var(--accent); transition: color 240ms ease; }
+  .brand span { color: var(--accent2); transition: color 240ms ease; }
   .bar-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   button, select, input[type=text], textarea {
     font-family: inherit; font-size: 11px; color: var(--fg);
@@ -39,12 +39,12 @@
   }
   button { cursor: pointer; transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 180ms ease; }
   button:active { transform: scale(0.95); }
-  button.active { border-color: var(--accent); color: var(--accent); background: rgba(0,240,255,0.14); }
+  button.active { border-color: var(--accent); color: var(--accent); background: rgba(255,255,255,0.09); }
   .layout {
-    display: grid; grid-template-columns: 290px minmax(300px, 1fr) 310px;
-    gap: 12px; padding: 12px; max-width: 1440px; margin: 0 auto;
+    display: grid; grid-template-columns: 300px minmax(310px, 1fr) 315px;
+    gap: 12px; padding: 12px; max-width: 1460px; margin: 0 auto;
   }
-  @media (max-width: 1020px) { .layout { grid-template-columns: 1fr; } }
+  @media (max-width: 1040px) { .layout { grid-template-columns: 1fr; } }
   .card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
     padding: 11px; display: flex; flex-direction: column; gap: 9px;
@@ -56,35 +56,34 @@
   input[type=range] { width: 100%; accent-color: var(--accent); margin-top: 3px; }
   input[type=color] { width: 34px; height: 26px; padding: 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: none; }
   .stage-wrap {
-    min-height: 290px; background: #000000; border: 1px dashed rgba(255,255,255,0.16);
-    border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    padding: 20px; position: relative; overflow: hidden; transition: width 260ms ease, margin 260ms ease;
+    min-height: 310px; background: #000000; border: 1px dashed rgba(255,255,255,0.16);
+    border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    padding: 20px; position: relative; overflow: hidden; transition: max-width 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .stage-wrap.mobile { max-width: 375px; margin: 0 auto; width: 100%; }
-  .demo-el {
-    transition:
-      border-radius 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
-      transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
-      background 250ms ease,
-      color 250ms ease,
-      border-color 250ms ease;
+  .hud-target {
+    position: relative;
+    transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease;
   }
-  .demo-el:hover:not(.is-disabled) { transform: translateY(-3px) scale(1.03); }
-  .demo-el.is-disabled { opacity: 0.45; cursor: not-allowed; }
-  @keyframes pulseRing {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.45); }
-    50% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); }
+  .hud-target:hover:not(.is-disabled) { transform: translateY(-3px) scale(1.025); }
+  .hud-target.is-disabled { opacity: 0.45; cursor: not-allowed; }
+  @keyframes radarPing {
+    0% { transform: scale(0.95); opacity: 0.75; }
+    100% { transform: scale(1.38); opacity: 0; }
   }
-  .pulse-on { animation: pulseRing 2.1s infinite; }
-  @keyframes shimmerMove {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+  .radar-ring {
+    position: absolute; inset: -4px; border-radius: inherit;
+    border: 1.5px solid var(--accent); pointer-events: none;
+    animation: radarPing 1.9s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
-  .shimmer-bar {
-    height: 10px; width: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.06) 75%);
-    background-size: 200% 100%; animation: shimmerMove 1.4s infinite linear;
+  @keyframes shimmerSweep {
+    0% { background-position: -220% 0; }
+    100% { background-position: 220% 0; }
+  }
+  .shimmer-skeleton {
+    height: 11px; width: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 20%, rgba(255,255,255,0.24) 50%, rgba(255,255,255,0.05) 80%);
+    background-size: 220% 100%; animation: shimmerSweep 1.35s linear infinite;
   }
   .wcag-pill { font-size: 10px; padding: 3px 8px; border-radius: 999px; font-weight: 700; border: 1px solid; }
   textarea.code-out {
@@ -117,21 +116,21 @@
 
 <div class="layout">
   <div class="card">
-    <div class="sec-title">Theme Presets</div>
+    <div class="sec-title">Theme &amp; Contrast Presets</div>
     <div class="row" id="theme-presets">
       <button data-theme="cyan" class="active">AMOLED CYAN</button>
-      <button data-theme="pink">SYNTH PINK</button>
-      <button data-theme="green">SIGNAL GREEN</button>
+      <button data-theme="pink">SYNTHWAVE PINK</button>
+      <button data-theme="rasta">RASTA / SIGNAL</button>
       <button data-theme="hc">HIGH CONTRAST</button>
     </div>
 
-    <div class="sec-title">Archetype &amp; State</div>
+    <div class="sec-title">HUD Archetype &amp; State</div>
     <div class="row">
       <select id="ctl-kind">
         <option value="button">Action Button</option>
-        <option value="card">Telemetry Card</option>
-        <option value="badge">Status Badge</option>
-        <option value="toggle">Switch Control</option>
+        <option value="card">Telemetry / Status Card</option>
+        <option value="badge">Badge / Pill</option>
+        <option value="toggle">Input / Toggle Control</option>
       </select>
       <select id="ctl-state">
         <option value="default">Default</option>
@@ -140,36 +139,36 @@
       </select>
     </div>
 
-    <label class="ctl">Label Text <input id="ctl-label" type="text" value="DEPLOY NODE // 09" /></label>
-    <label class="ctl">Subtext / Telemetry <input id="ctl-sub" type="text" value="LATENCY 14ms · SYNC LOCKED" /></label>
+    <label class="ctl">Label / Title <input id="ctl-label" type="text" value="DEPLOY NODE // 09" /></label>
+    <label class="ctl">Telemetry / Placeholder <input id="ctl-sub" type="text" value="LATENCY 14ms · SYNC LOCKED" /></label>
 
     <div class="row">
-      <label class="ctl">Accent <input id="ctl-accent" type="color" value="#00f0ff" /></label>
+      <label class="ctl">Primary <input id="ctl-accent" type="color" value="#00f0ff" /></label>
       <label class="ctl">Secondary <input id="ctl-accent2" type="color" value="#ff2a85" /></label>
       <label class="ctl">Text <input id="ctl-fg" type="color" value="#eef7ff" /></label>
       <label class="ctl">Surface <input id="ctl-bg" type="color" value="#081326" /></label>
     </div>
 
     <label class="ctl">Border Radius <span id="v-rad">12px</span><input id="ctl-rad" type="range" min="0" max="28" value="12" /></label>
-    <label class="ctl">Glow Intensity <span id="v-glow">22px</span><input id="ctl-glow" type="range" min="0" max="45" value="22" /></label>
+    <label class="ctl">Glow &amp; Elevation <span id="v-glow">22px</span><input id="ctl-glow" type="range" min="0" max="45" value="22" /></label>
 
     <div class="row">
-      <button id="ctl-pulse" class="active">PULSE RING</button>
-      <button id="ctl-shimmer" class="active">SHIMMER</button>
+      <button id="ctl-pulse" class="active">RADAR PULSE</button>
+      <button id="ctl-shimmer" class="active">SHIMMER LOADER</button>
     </div>
   </div>
 
   <div class="card">
     <div class="row">
-      <span class="sec-title">Spring Preview Stage</span>
+      <span class="sec-title">Spring Morph Stage</span>
       <span id="wcag-badge" class="wcag-pill">WCAG --</span>
     </div>
     <div class="stage-wrap" id="stage-wrap">
       <div id="preview-mount"></div>
     </div>
     <div class="row">
-      <span style="font-size:10px;color:var(--muted)" id="wcag-detail">Contrast ratio check active</span>
-      <button id="btn-trigger">TEST INTERACTION</button>
+      <span style="font-size:10px;color:var(--muted)" id="wcag-detail">Live contrast check active</span>
+      <button id="btn-trigger">FIRE STATE / PULSE</button>
     </div>
   </div>
 
@@ -200,7 +199,7 @@
 
 <script>
 (() => {
-  const VAULT_KEY = 'forge_ui_vault_v1';
+  const VAULT_KEY = 'forge_ui_vault_v2';
   const DEFAULTS = {
     theme: 'cyan',
     kind: 'button',
@@ -218,10 +217,13 @@
   };
 
   let state = { ...DEFAULTS };
+  let morph = { rad: DEFAULTS.rad, glow: DEFAULTS.glow, r: 0, g: 240, b: 255 };
   let history = [JSON.stringify(state)];
   let histIdx = 0;
   let exportTab = 'jsx';
   let toggleChecked = true;
+  let inputVal = '';
+  let burstTick = 0;
 
   const toast = document.getElementById('toast');
   function notify(msg) {
@@ -231,8 +233,9 @@
   }
 
   function hexToRgb(hex) {
-    const clean = hex.replace('#', '');
-    const n = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
+    const clean = (hex || '#00f0ff').replace('#', '');
+    const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
+    const n = parseInt(full, 16) || 0;
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
@@ -258,7 +261,7 @@
     badge.textContent = cr.toFixed(1) + ':1 ' + (pass ? 'WCAG AA' : 'LOW CONTRAST');
     badge.style.color = pass ? '#39ff14' : '#ff2a85';
     badge.style.borderColor = pass ? '#39ff14' : '#ff2a85';
-    detail.textContent = pass ? 'Readable contrast ratio (>= 4.5:1)' : 'Raise contrast between text and surface (< 4.5:1)';
+    detail.textContent = pass ? 'Pass: >= 4.5:1 contrast ratio' : 'Warning: < 4.5:1 — try a high-contrast preset';
   }
 
   function generateOutput() {
@@ -269,32 +272,31 @@
     }
     if (exportTab === 'prompt') {
       out.value =
-        `Build a React + Tailwind "${state.kind}" component with label "${state.label}" ` +
-        `and status "${state.sub}" in "${state.state}" state. Use accent ${state.accent}, ` +
-        `secondary ${state.accent2}, surface ${state.bg}, text ${state.fg}, ` +
-        `${state.rad}px border radius, ${state.glow}px glow, ` +
-        `${state.pulse ? 'pulsing indicator' : 'static border'}, and ` +
-        `${state.shimmer ? 'shimmer loader support' : 'clean surface'}.`;
+        `Create a cyberpunk/HUD React + Tailwind "${state.kind}" component in "${state.state}" state ` +
+        `with primary label "${state.label}" and telemetry/input text "${state.sub}". ` +
+        `Theme tokens: accent=${state.accent}, secondary=${state.accent2}, surface=${state.bg}, ` +
+        `text=${state.fg}, radius=${state.rad}px, glow=${state.glow}px, ` +
+        `radarPulse=${state.pulse}, shimmerLoader=${state.shimmer}.`;
       return;
     }
-    const styleObj = `{ borderRadius: '${state.rad}px', background: '${state.bg}', color: '${state.fg}', border: '1px solid ${state.accent}', boxShadow: '0 0 ${state.glow}px ${state.accent}44' }`;
+    const styleObj = `{ borderRadius: '${state.rad}px', background: '${state.bg}', color: '${state.fg}', border: '1px solid ${state.accent}', boxShadow: '0 ${Math.max(2, Math.round(state.glow * 0.4))}px ${state.glow}px ${state.accent}44' }`;
     if (state.kind === 'button') {
-      out.value = `<button\n  type="button"\n  disabled={${state.state === 'disabled'}}\n  style={${styleObj}}\n  className="px-5 py-2.5 font-mono text-xs font-bold tracking-wider transition-transform active:scale-95"\n>\n  ${state.state === 'loading' ? 'SYNCING...' : state.label}\n</button>`;
+      out.value = `<button type="button" disabled={${state.state === 'disabled'}} style={${styleObj}} className="px-5 py-2.5 font-mono text-xs font-bold tracking-wider transition active:scale-95">\n  ${state.state === 'loading' ? 'SYNCING...' : state.label}\n</button>`;
     } else if (state.kind === 'badge') {
-      out.value = `<span\n  style={${styleObj}}\n  className="inline-flex items-center gap-2 px-3 py-1 font-mono text-xs font-semibold"\n>\n  <i style={{ background: '${state.accent2}' }} className="w-2 h-2 rounded-full" />\n  ${state.label}\n</span>`;
+      out.value = `<span style={${styleObj}} className="inline-flex items-center gap-2 px-3.5 py-1 font-mono text-xs font-semibold">\n  <span style={{ background: '${state.accent2}' }} className="w-2 h-2 rounded-full" />\n  ${state.label}\n</span>`;
     } else if (state.kind === 'toggle') {
-      out.value = `<button\n  type="button"\n  role="switch"\n  aria-checked={${toggleChecked}}\n  disabled={${state.state === 'disabled'}}\n  style={${styleObj}}\n  className="px-4 py-2 font-mono text-xs font-bold"\n>\n  ${state.label}: {${toggleChecked} ? 'ON' : 'OFF'}\n</button>`;
+      out.value = `<div style={${styleObj}} className="p-3 font-mono text-xs flex items-center gap-2">\n  <input placeholder="${state.sub}" className="bg-transparent outline-none flex-1" />\n  <button type="button" role="switch" aria-checked={${toggleChecked}} className="px-2.5 py-1 rounded font-bold">{${toggleChecked} ? 'ON' : 'OFF'}</button>\n</div>`;
     } else {
-      out.value = `<div\n  style={${styleObj}}\n  className="p-4 font-mono max-w-xs space-y-2"\n>\n  <div className="text-xs font-bold tracking-wider">${state.label}</div>\n  <div className="text-[11px] opacity-75">${state.sub}</div>\n</div>`;
+      out.value = `<section style={${styleObj}} className="p-4 font-mono max-w-xs space-y-1.5">\n  <div className="text-xs font-bold tracking-wider">${state.label}</div>\n  <div className="text-[11px] opacity-80">${state.sub}</div>\n</section>`;
     }
   }
 
-  function renderPreview() {
+  function renderDomShell() {
     document.documentElement.style.setProperty('--accent', state.accent);
     document.documentElement.style.setProperty('--accent2', state.accent2);
     document.documentElement.style.setProperty('--fg', state.fg);
-    document.documentElement.style.setProperty('--radius', state.rad + 'px');
 
+    document.querySelectorAll('#theme-presets button').forEach(b => b.classList.toggle('active', b.dataset.theme === state.theme));
     document.getElementById('ctl-kind').value = state.kind;
     document.getElementById('ctl-state').value = state.state;
     document.getElementById('ctl-label').value = state.label;
@@ -313,21 +315,69 @@
     const mount = document.getElementById('preview-mount');
     const dis = state.state === 'disabled';
     const ld = state.state === 'loading';
-    const baseStyle = `border-radius:${state.rad}px;background:${state.bg};color:${state.fg};border:1px solid ${state.accent};box-shadow:0 0 ${state.glow}px ${state.accent}44;`;
+    const pulseHtml = state.pulse ? '<span class="radar-ring"></span>' : '';
+    const shimmerHtml = (ld || state.shimmer) ? '<div class="shimmer-skeleton" style="margin-top:8px"></div>' : '';
 
     if (state.kind === 'button') {
-      mount.innerHTML = `<button class="demo-el ${dis ? 'is-disabled' : ''} ${state.pulse ? 'pulse-on' : ''}" style="${baseStyle}padding:11px 20px;font-weight:700;letter-spacing:0.8px;">${ld ? 'LOADING...' : state.label}</button>`;
+      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="display:inline-block;padding:11px 22px;font-weight:800;letter-spacing:0.8px;">${pulseHtml}<span>${ld ? 'TRANSMITTING...' : state.label}</span></div>`;
     } else if (state.kind === 'badge') {
-      mount.innerHTML = `<div class="demo-el ${dis ? 'is-disabled' : ''}" style="${baseStyle}padding:6px 14px;display:inline-flex;align-items:center;gap:8px;font-weight:700;"><span style="width:8px;height:8px;border-radius:50%;background:${state.accent2};display:inline-block"></span>${state.label}</div>`;
+      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;font-weight:700;font-size:11px;">${pulseHtml}<span id="morph-dot" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span><span>${state.label}</span><span style="opacity:0.7;font-size:10px">${state.sub}</span></div>`;
     } else if (state.kind === 'toggle') {
-      mount.innerHTML = `<button class="demo-el ${dis ? 'is-disabled' : ''}" style="${baseStyle}padding:9px 16px;display:inline-flex;align-items:center;gap:10px;font-weight:700;"><span>${state.label}</span><span style="padding:2px 7px;border-radius:99px;background:${toggleChecked ? state.accent : 'rgba(255,255,255,0.12)'};color:#000;font-size:10px;">${toggleChecked ? 'ON' : 'OFF'}</span></button>`;
+      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="padding:10px 12px;display:flex;align-items:center;gap:8px;min-width:240px;">${pulseHtml}<input id="live-hud-input" type="text" value="${inputVal}" placeholder="${state.sub}" ${dis ? 'disabled' : ''} style="flex:1;min-width:0;background:rgba(0,0,0,0.35);color:inherit;border:1px solid rgba(255,255,255,0.2);padding:5px 7px;border-radius:6px;" /><button type="button" id="live-hud-switch" ${dis ? 'disabled' : ''} style="padding:5px 9px;font-weight:800;font-size:10px;border:none;border-radius:6px;">${toggleChecked ? 'ON' : 'OFF'}</button></div>`;
+      const inp = document.getElementById('live-hud-input');
+      const sw = document.getElementById('live-hud-switch');
+      if (inp) inp.oninput = e => { inputVal = e.target.value; };
+      if (sw) sw.onclick = () => { if (!dis) { toggleChecked = !toggleChecked; renderDomShell(); generateOutput(); } };
     } else {
-      mount.innerHTML = `<div class="demo-el ${dis ? 'is-disabled' : ''} ${state.pulse ? 'pulse-on' : ''}" style="${baseStyle}padding:14px 16px;min-width:220px;max-width:290px;"><div style="font-weight:800;font-size:12px;margin-bottom:4px;">${state.label}</div><div style="font-size:10px;opacity:0.8;margin-bottom:8px;">${state.sub}</div>${(ld || state.shimmer) ? '<div class="shimmer-bar"></div>' : ''}</div>`;
+      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="padding:14px 16px;min-width:230px;max-width:300px;">${pulseHtml}<div style="font-weight:800;font-size:12px;margin-bottom:4px;">${state.label}</div><div style="font-size:10px;opacity:0.82;">${state.sub}</div>${shimmerHtml}</div>`;
+    }
+
+    const node = document.getElementById('morph-node');
+    if (node) {
+      node.onclick = () => {
+        if (dis) return;
+        toggleChecked = !toggleChecked;
+        burstTick = 1.0;
+        if (state.kind === 'toggle' || state.kind === 'badge') renderDomShell();
+        generateOutput();
+      };
     }
 
     updateWcag();
     generateOutput();
   }
+
+  function stepMorph(dt) {
+    const k = Math.min(1, dt * 11);
+    morph.rad += (state.rad - morph.rad) * k;
+    morph.glow += (state.glow - morph.glow) * k;
+    const [tr, tg, tb] = hexToRgb(state.accent);
+    morph.r += (tr - morph.r) * k;
+    morph.g += (tg - morph.g) * k;
+    morph.b += (tb - morph.b) * k;
+    if (burstTick > 0) burstTick = Math.max(0, burstTick - dt * 2.5);
+
+    const node = document.getElementById('morph-node');
+    if (node) {
+      const rInt = Math.round(morph.r), gInt = Math.round(morph.g), bInt = Math.round(morph.b);
+      const rgbaGlow = `rgba(${rInt},${gInt},${bInt},0.42)`;
+      const elev = Math.max(2, Math.round(morph.glow * 0.35 + burstTick * 8));
+      node.style.borderRadius = morph.rad.toFixed(1) + 'px';
+      node.style.background = state.bg;
+      node.style.color = state.fg;
+      node.style.border = `1px solid rgb(${rInt},${gInt},${bInt})`;
+      node.style.boxShadow = `0 ${elev}px ${(morph.glow + burstTick * 12).toFixed(1)}px ${rgbaGlow}`;
+    }
+    const dot = document.getElementById('morph-dot');
+    if (dot) dot.style.background = state.accent2;
+    const sw = document.getElementById('live-hud-switch');
+    if (sw) {
+      sw.style.background = toggleChecked ? state.accent : 'rgba(255,255,255,0.16)';
+      sw.style.color = '#000000';
+    }
+    requestAnimationFrame(stepMorph);
+  }
+  requestAnimationFrame(stepMorph);
 
   function commit(nextPartial) {
     state = { ...state, ...nextPartial };
@@ -337,7 +387,7 @@
       history.push(snap);
       histIdx = history.length - 1;
     }
-    renderPreview();
+    renderDomShell();
   }
 
   function loadVault() {
@@ -361,12 +411,10 @@
 
   document.querySelectorAll('#theme-presets button').forEach(b => {
     b.onclick = () => {
-      document.querySelectorAll('#theme-presets button').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
       const t = b.dataset.theme;
       if (t === 'pink') commit({ theme: t, accent: '#ff2a85', accent2: '#00f0ff', bg: '#140612', fg: '#fff0f7' });
-      else if (t === 'green') commit({ theme: t, accent: '#39ff14', accent2: '#ffb800', bg: '#051108', fg: '#ecfff0' });
-      else if (t === 'hc') commit({ theme: t, accent: '#ffffff', accent2: '#00f0ff', bg: '#000000', fg: '#ffffff' });
+      else if (t === 'rasta') commit({ theme: t, accent: '#39ff14', accent2: '#ffb800', bg: '#051108', fg: '#f2fff5' });
+      else if (t === 'hc') commit({ theme: t, accent: '#ffffff', accent2: '#00f0ff', bg: '#000000', fg: '#ffffff', glow: 12 });
       else commit({ theme: 'cyan', accent: '#00f0ff', accent2: '#ff2a85', bg: '#081326', fg: '#eef7ff' });
     };
   });
@@ -375,20 +423,20 @@
   document.getElementById('ctl-state').onchange = e => commit({ state: e.target.value });
   document.getElementById('ctl-label').oninput = e => commit({ label: e.target.value });
   document.getElementById('ctl-sub').oninput = e => commit({ sub: e.target.value });
-  document.getElementById('ctl-accent').oninput = e => commit({ accent: e.target.value });
-  document.getElementById('ctl-accent2').oninput = e => commit({ accent2: e.target.value });
-  document.getElementById('ctl-fg').oninput = e => commit({ fg: e.target.value });
-  document.getElementById('ctl-bg').oninput = e => commit({ bg: e.target.value });
+  document.getElementById('ctl-accent').oninput = e => commit({ accent: e.target.value, theme: 'custom' });
+  document.getElementById('ctl-accent2').oninput = e => commit({ accent2: e.target.value, theme: 'custom' });
+  document.getElementById('ctl-fg').oninput = e => commit({ fg: e.target.value, theme: 'custom' });
+  document.getElementById('ctl-bg').oninput = e => commit({ bg: e.target.value, theme: 'custom' });
   document.getElementById('ctl-rad').oninput = e => commit({ rad: +e.target.value });
   document.getElementById('ctl-glow').oninput = e => commit({ glow: +e.target.value });
   document.getElementById('ctl-pulse').onclick = () => commit({ pulse: !state.pulse });
   document.getElementById('ctl-shimmer').onclick = () => commit({ shimmer: !state.shimmer });
 
   document.getElementById('btn-undo').onclick = () => {
-    if (histIdx > 0) { histIdx--; state = JSON.parse(history[histIdx]); renderPreview(); }
+    if (histIdx > 0) { histIdx--; state = JSON.parse(history[histIdx]); renderDomShell(); }
   };
   document.getElementById('btn-redo').onclick = () => {
-    if (histIdx < history.length - 1) { histIdx++; state = JSON.parse(history[histIdx]); renderPreview(); }
+    if (histIdx < history.length - 1) { histIdx++; state = JSON.parse(history[histIdx]); renderDomShell(); }
   };
   document.getElementById('btn-reset').onclick = () => commit({ ...DEFAULTS });
 
@@ -405,6 +453,7 @@
 
   document.getElementById('btn-trigger').onclick = () => {
     toggleChecked = !toggleChecked;
+    burstTick = 1.0;
     commit({ state: state.state === 'loading' ? 'default' : 'loading' });
     setTimeout(() => commit({ state: 'default' }), 900);
   };
@@ -445,7 +494,7 @@
   };
 
   loadVault();
-  renderPreview();
+  renderDomShell();
 })();
 </script>
 </body>
