@@ -224,9 +224,9 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
                     : 'px-5 py-2.5 text-sm'
               } ${radius} ${
                 state.surface === 'outline'
-                  ? `bg-transparent border-2 ${accent.border}${accent.text}`
+                  ? `bg-transparent border-2 ${accent.border} ${accent.text}`
                   : state.surface === 'glass'
-                    ? `bg-zinc-900/70 backdrop-blur-md border ${accent.border}${accent.text}`
+                    ? `bg-zinc-900/70 backdrop-blur-md border ${accent.border} ${accent.text}`
                     : accent.bg
               } ${shadowClass}`}
             >
