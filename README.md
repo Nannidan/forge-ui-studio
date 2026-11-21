@@ -1,39 +1,25 @@
-# FORGE // UI
+# FORGE // UI — Component Workbench, WCAG A11y Auditor & AI Prompt Studio
 
-An interactive **React 19 + TypeScript + Tailwind CSS v4** component workbench, accessibility auditor, and AI Prompt Spec generator.
+[![CI](https://github.com/Nannidan/forge-ui-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/Nannidan/forge-ui-studio/actions)
+**Live Demo:** [https://forge-ui-studio.vercel.app/](https://forge-ui-studio.vercel.app/)
 
----
-
-## Key Features
-
-- **Live Design Token Controls:** Real-time switching for Accent Palette, Surface Mode (*Solid*, *Glassmorphism*, *Outline*), Border Radius, Padding Scale, and Elevation/Glow across 4 component archetypes (*Card*, *Button*, *Alert*, *Stat Tile*).
-- **Interactive State Simulator:** Toggle `Default`, `Loading` (skeleton/spinner with `aria-busy`), and `Disabled` (`aria-disabled`) states live—automatically reflected in the exported JSX.
-- **Live WCAG 2.1 Accessibility Auditor:** Computes real-time luminance contrast ratios (`AAA` / `AA` / `Fail`) and verifies semantic ARIA/focus-ring compliance.
-- **Saved Component Vault (`localStorage` CRUD):** Name, persist, reload, and delete custom component presets in a slide-out drawer.
-- **Undo / Redo History Stack:** Full state-history stack with `Ctrl/Cmd + Z` and `Ctrl/Cmd + Shift + Z` keyboard shortcuts.
-- **3-Format Export Engine:** One-click copy or file download (`.tsx`, `.css`, `.txt`) for **React + Tailwind JSX**, **Tailwind v4 `@theme inline` CSS Tokens**, and **AI Prompt Specs**.
-- **Adaptive IDE Layout:** Pinned preview with a 3-tab dock (`Tokens` | `Content` | `Code`) on mobile; full-viewport `100dvh` split-pane workspace on desktop and ultrawide screens.
+Interactive design-token workbench and code generator engineered with **React 19**, **TypeScript**, and **Tailwind CSS v4**.
 
 ---
 
-## Tech Stack
+## Architecture & Engineering Decisions
 
-| Layer | Technology |
-| :--- | :--- |
-| Framework | React 19 + TypeScript |
-| Build Tool | Vite |
-| Styling | Tailwind CSS v4 (`@theme inline`) |
-| Animation | Framer Motion (`MotionConfig reducedMotion="user"`) |
-| Icons | Lucide React |
-| Deployment | Vercel (CI/CD via GitHub) |
-
----
+- **Real-Time WCAG 2.1 Relative Luminance & Contrast Engine (`src/utils/a11y.ts`):** Computes exact sRGB gamma-expanded luminance and contrast ratios (`:1`) on every color token edit, flagging AA (`4.5:1`) and AAA (`7.0:1`) compliance in real time.
+- **Time-Travel Undo / Redo History Hook (`src/hooks/useHistoryState.ts`):** Immutable past/present/future state stack with keyboard shortcuts (`Ctrl/Cmd+Z`, `Ctrl/Cmd+Shift+Z`) for non-destructive design iteration.
+- **Interactive State Simulator (`src/components/LivePreview.tsx`):** Preview components across `Default`, `Hover`, `Loading`, and `Disabled` states simultaneously.
+- **Persistent Component Vault (`src/hooks/useComponentVault.ts`):** Full `localStorage` CRUD drawer (`VaultDrawer.tsx`) for saving, loading, and managing custom component presets.
+- **3-Format Deterministic Exporter (`src/utils/codeGenerator.ts`):** Generates copy-ready **React + Tailwind JSX**, **Tailwind v4 `@theme` CSS tokens**, and **structured AI design-system prompts**.
 
 ## Local Development
 
 ```bash
-git clone [https://github.com/Nannidan/forge-ui-studio.git](https://github.com/Nannidan/forge-ui-studio.git)
-cd forge-ui-studio
 npm install
 npm run dev
+npm run lint
+npm run build
 ```
