@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>FORGE // UI — COMPONENT & PROMPT STUDIO</title>
+<title>FORGE // UI — COMPONENT &amp; PROMPT STUDIO</title>
 <style>
   :root {
-    --bg: #000000;
-    --surface: #070b14;
-    --panel: #0b1120;
-    --border: rgba(0, 240, 255, 0.24);
-    --accent: #00f0ff;
-    --accent2: #ff2a85;
+    --bg: #030711;
+    --surface: #070d19;
+    --panel: #0b1324;
+    --border: rgba(56, 189, 248, 0.26);
+    --accent: #38bdf8;
+    --accent2: #6366f1;
     --fg: #eef7ff;
-    --muted: #7d93b2;
+    --muted: #8ca2c0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
@@ -26,36 +26,37 @@
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
     padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border);
   }
-  .brand { font-weight: 800; font-size: 13px; color: var(--accent); }
+  .brand { font-weight: 800; font-size: 13px; color: var(--accent); letter-spacing: 0.5px; }
   .brand span { color: var(--accent2); }
   .bar-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  button, select, input[type=text], textarea {
+  button, select, input[type=text], textarea, a.nav-btn {
     font-family: inherit; font-size: 11px; color: var(--fg);
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.16);
-    border-radius: 7px; padding: 5px 8px;
+    border-radius: 7px; padding: 5px 9px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
   }
-  button { cursor: pointer; transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1); }
-  button:active { transform: scale(0.95); }
-  button.active { border-color: var(--accent); color: var(--accent); background: rgba(255,255,255,0.09); }
+  button, a.nav-btn { cursor: pointer; transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 140ms ease; }
+  button:hover, a.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  button:active, a.nav-btn:active { transform: scale(0.95); }
+  button.active { border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.14); font-weight: 700; }
   .layout {
-    display: grid; grid-template-columns: 300px minmax(310px, 1fr) 315px;
+    display: grid; grid-template-columns: 310px minmax(310px, 1fr) 330px;
     gap: 12px; padding: 12px; max-width: 1460px; margin: 0 auto;
   }
   @media (max-width: 1040px) { .layout { grid-template-columns: 1fr; } }
   .card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-    padding: 11px; display: flex; flex-direction: column; gap: 9px;
+    padding: 12px; display: flex; flex-direction: column; gap: 10px;
   }
-  .sec-title { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+  .sec-title { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; }
   .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
   label.ctl { display: block; font-size: 10px; color: var(--muted); }
   label.ctl span { float: right; color: var(--fg); }
   input[type=range] { width: 100%; accent-color: var(--accent); margin-top: 3px; }
-  input[type=color] { width: 34px; height: 26px; padding: 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: none; }
+  input[type=color] { width: 34px; height: 26px; padding: 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: none; cursor: pointer; }
   .stage-wrap {
-    min-height: 300px; background: #000000; border: 1px dashed rgba(255,255,255,0.16);
+    min-height: 320px; background: #02050b; border: 1px dashed rgba(255,255,255,0.16);
     border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    padding: 20px; position: relative; overflow: hidden;
+    padding: 24px; position: relative; overflow: hidden;
   }
   .stage-wrap.mobile { max-width: 375px; margin: 0 auto; width: 100%; }
   .hud-target { position: relative; transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease; }
@@ -81,13 +82,13 @@
   }
   .wcag-pill { font-size: 10px; padding: 3px 8px; border-radius: 999px; font-weight: 700; border: 1px solid; }
   textarea.code-out {
-    width: 100%; min-height: 120px; background: #03060c; color: #b8e8ff;
-    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px; font-size: 10px;
+    width: 100%; min-height: 150px; background: #03060c; color: #b8e8ff;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 9px; font-size: 10.5px; line-height: 1.45;
   }
-  .vault-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 92px; overflow-y: auto; }
+  .vault-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 100px; overflow-y: auto; }
   .toast {
     position: fixed; bottom: 14px; right: 14px; z-index: 50; background: #081526;
-    color: #39ff14; border: 1px solid #39ff14; border-radius: 8px; padding: 7px 12px;
+    color: #34d399; border: 1px solid #34d399; border-radius: 8px; padding: 7px 12px;
     font-size: 11px; opacity: 0; pointer-events: none; transition: opacity 200ms ease;
   }
   .toast.show { opacity: 1; }
@@ -96,8 +97,9 @@
 <body>
 <div class="top">
   <div class="bar-group">
-    <a href="https://portfolio-hub-44jc.vercel.app/" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:11px;">&larr; BACK TO PORTFOLIO</a>
-    <div class="brand">FORGE // <span>UI</span></div>
+    <a href="./" id="back-project-link" class="nav-btn" style="color:var(--accent);border-color:var(--border);">&larr; BACK TO PROJECT</a>
+    <a href="https://portfolio-hub-44jc.vercel.app/" class="nav-btn">PORTFOLIO HUB</a>
+    <div class="brand">FORGE // <span>UI STUDIO</span></div>
   </div>
   <div class="bar-group">
     <button id="btn-undo">UNDO</button>
@@ -109,11 +111,11 @@
 </div>
 <div class="layout">
   <div class="card">
-    <div class="sec-title">Theme &amp; Contrast Presets</div>
+    <div class="sec-title">Executive Theme &amp; Contrast Presets</div>
     <div class="row" id="theme-presets">
-      <button data-theme="cyan" class="active">AMOLED CYAN</button>
-      <button data-theme="pink">SYNTHWAVE PINK</button>
-      <button data-theme="rasta">RASTA / SIGNAL</button>
+      <button data-theme="cyan" class="active">OBSIDIAN CYAN</button>
+      <button data-theme="emerald">NORDIC EMERALD</button>
+      <button data-theme="indigo">EXECUTIVE INDIGO</button>
       <button data-theme="hc">HIGH CONTRAST</button>
     </div>
     <div class="sec-title">HUD Archetype &amp; State</div>
@@ -130,41 +132,51 @@
         <option value="disabled">Disabled</option>
       </select>
     </div>
-    <label class="ctl">Label / Title <input id="ctl-label" type="text" value="DEPLOY NODE // 09" /></label>
-    <label class="ctl">Telemetry / Placeholder <input id="ctl-sub" type="text" value="LATENCY 14ms · SYNC LOCKED" /></label>
+    <label class="ctl">Label / Title</label>
+    <input type="text" id="ctl-label" value="DEPLOY NODE // 09" />
+    <label class="ctl">Telemetry / Subtitle</label>
+    <input type="text" id="ctl-sub" value="99.98% Uptime · 14ms Edge Latency" />
+    <div class="sec-title">Color Tokens</div>
     <div class="row">
-      <label class="ctl">Primary <input id="ctl-accent" type="color" value="#00f0ff" /></label>
-      <label class="ctl">Secondary <input id="ctl-accent2" type="color" value="#ff2a85" /></label>
-      <label class="ctl">Text <input id="ctl-fg" type="color" value="#eef7ff" /></label>
-      <label class="ctl">Surface <input id="ctl-bg" type="color" value="#081326" /></label>
+      <label class="ctl">Primary <input type="color" id="ctl-accent" value="#38bdf8" /></label>
+      <label class="ctl">Secondary <input type="color" id="ctl-accent2" value="#6366f1" /></label>
+      <label class="ctl">Text <input type="color" id="ctl-fg" value="#eef7ff" /></label>
+      <label class="ctl">Surface <input type="color" id="ctl-bg" value="#081326" /></label>
     </div>
-    <label class="ctl">Border Radius <span id="v-rad">12px</span><input id="ctl-rad" type="range" min="0" max="28" value="12" /></label>
-    <label class="ctl">Glow &amp; Elevation <span id="v-glow">22px</span><input id="ctl-glow" type="range" min="0" max="45" value="22" /></label>
+    <label class="ctl">Border Radius <span id="val-rad">12px</span>
+      <input type="range" id="ctl-rad" min="0" max="32" value="12" />
+    </label>
+    <label class="ctl">Glow &amp; Elevation <span id="val-glow">22px</span>
+      <input type="range" id="ctl-glow" min="0" max="48" value="22" />
+    </label>
     <div class="row">
       <button id="ctl-pulse" class="active">RADAR PULSE</button>
       <button id="ctl-shimmer" class="active">SHIMMER LOADER</button>
     </div>
   </div>
+
   <div class="card">
     <div class="row">
-      <span class="sec-title">Spring Morph Stage</span>
-      <span id="wcag-badge" class="wcag-pill">WCAG --</span>
+      <div class="sec-title">Spring Morph Stage</div>
+      <span id="wcag-badge" class="wcag-pill">-- WCAG</span>
     </div>
     <div class="stage-wrap" id="stage-wrap">
       <div id="preview-mount"></div>
     </div>
     <div class="row">
-      <span style="font-size:10px;color:var(--muted)" id="wcag-detail">Live contrast check active</span>
+      <span id="wcag-detail" style="font-size:10px;color:var(--muted);">Pass: &gt;= 4.5:1 contrast ratio</span>
       <button id="btn-trigger">FIRE STATE / PULSE</button>
     </div>
   </div>
+
   <div class="card">
     <div class="sec-title">Component Vault Presets</div>
     <div class="row">
-      <input id="vault-name" type="text" placeholder="Preset name..." style="flex:1;min-width:120px" />
+      <input type="text" id="vault-name" placeholder="Preset name..." style="flex:1;" />
       <button id="vault-save" class="active">SAVE</button>
     </div>
     <div class="vault-list" id="vault-list"></div>
+    <div class="sec-title">Code &amp; Prompt Exporter</div>
     <div class="row">
       <div class="bar-group">
         <button id="exp-jsx" class="active">JSX</button>
@@ -173,78 +185,98 @@
       </div>
       <button id="btn-copy" class="active">COPY</button>
     </div>
-    <textarea class="code-out" id="code-out" readonly></textarea>
-    <div class="row">
-      <button id="btn-import-json">LOAD JSON FROM BOX</button>
-    </div>
+    <textarea class="code-out" id="code-out" spellcheck="false"></textarea>
+    <button id="btn-import-json">LOAD JSON FROM BOX</button>
   </div>
 </div>
 <div class="toast" id="toast">COPIED</div>
 <script>
 (() => {
+  const backBtn = document.getElementById('back-project-link');
+  if (backBtn) {
+    backBtn.onclick = (e) => {
+      if (document.referrer && !document.referrer.includes('forge-studio.html')) {
+        e.preventDefault();
+        window.location.href = document.referrer;
+      }
+    };
+  }
+
   const VAULT_KEY = 'forge_ui_vault_v3';
   const DEFAULTS = {
     theme: 'cyan', kind: 'button', state: 'default',
-    label: 'DEPLOY NODE // 09', sub: 'LATENCY 14ms · SYNC LOCKED',
-    accent: '#00f0ff', accent2: '#ff2a85', fg: '#eef7ff', bg: '#081326',
+    label: 'DEPLOY NODE // 09', sub: '99.98% Uptime · 14ms Edge Latency',
+    accent: '#38bdf8', accent2: '#6366f1', fg: '#eef7ff', bg: '#081326',
     rad: 12, glow: 22, pulse: true, shimmer: true
   };
   const STARTER_PRESETS = [
-    { name: 'AMOLED Cyan BTN', data: { ...DEFAULTS } },
-    { name: 'Synth Pink CARD', data: { ...DEFAULTS, theme: 'pink', kind: 'card', label: 'ORBIT RELAY // 04', sub: 'SIGNAL 99.4% · LOCKED', accent: '#ff2a85', accent2: '#00f0ff', bg: '#140612', fg: '#fff0f7' } },
-    { name: 'Rasta Signal BADGE', data: { ...DEFAULTS, theme: 'rasta', kind: 'badge', label: 'ACTIVE', sub: 'NODE OK', accent: '#39ff14', accent2: '#ffb800', bg: '#051108', fg: '#f2fff5', rad: 20 } },
-    { name: 'High Contrast SWITCH', data: { ...DEFAULTS, theme: 'hc', kind: 'toggle', label: 'SHIELD', sub: 'Enter command...', accent: '#ffffff', accent2: '#00f0ff', bg: '#000000', fg: '#ffffff', glow: 12 } }
+    { name: 'Obsidian Cyan BTN', data: { ...DEFAULTS } },
+    { name: 'Nordic Emerald CARD', data: { ...DEFAULTS, theme: 'emerald', kind: 'card', accent: '#10b981', accent2: '#38bdf8', bg: '#051510', fg: '#ecfdf5', label: 'TELEMETRY LOCK', sub: 'Orbital Vector Nominal' } },
+    { name: 'Executive Indigo BADGE', data: { ...DEFAULTS, theme: 'indigo', kind: 'badge', accent: '#818cf8', accent2: '#c084fc', bg: '#0d0c22', fg: '#eef2ff', rad: 28, label: 'SIGNAL LOCKED' } },
+    { name: 'High Contrast SWITCH', data: { ...DEFAULTS, theme: 'hc', kind: 'toggle', accent: '#ffffff', accent2: '#38bdf8', bg: '#000000', fg: '#ffffff', glow: 10, label: 'MANUAL OVERRIDE' } }
   ];
   let state = { ...DEFAULTS };
-  let morph = { rad: DEFAULTS.rad, glow: DEFAULTS.glow, r: 0, g: 240, b: 255 };
   let history = [JSON.stringify(state)];
   let histIdx = 0;
   let exportTab = 'jsx';
   let toggleChecked = true;
-  let inputVal = '';
+  let inputVal = 'Nominal Vector';
   let burstTick = 0;
-  const toast = document.getElementById('toast');
-  function notify(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1400); }
+  const morph = { rad: state.rad, glow: state.glow, r: 56, g: 189, b: 248 };
+
+  function notify(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1400);
+  }
   function hexToRgb(hex) {
-    const clean = (hex || '#00f0ff').replace('#', '');
-    const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
-    const n = parseInt(full, 16) || 0;
+    const h = (hex || '#000000').replace('#', '');
+    const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16) || 0;
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  function lum(hex) {
-    const [r, g, b] = hexToRgb(hex).map(v => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); });
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  function lum([r, g, b]) {
+    const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
   }
-  function contrastRatio(fgHex, bgHex) {
-    const l1 = Math.max(lum(fgHex), lum(bgHex));
-    const l2 = Math.min(lum(fgHex), lum(bgHex));
-    return (l1 + 0.05) / (l2 + 0.05);
+  function contrastRatio(h1, h2) {
+    const l1 = lum(hexToRgb(h1)), l2 = lum(hexToRgb(h2));
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
   }
   function updateWcag() {
     const cr = contrastRatio(state.fg, state.bg);
     const badge = document.getElementById('wcag-badge');
     const detail = document.getElementById('wcag-detail');
-    const pass = cr >= 4.5;
-    badge.textContent = cr.toFixed(1) + ':1 ' + (pass ? 'WCAG AA' : 'LOW CONTRAST');
-    badge.style.color = pass ? '#39ff14' : '#ff2a85';
-    badge.style.borderColor = pass ? '#39ff14' : '#ff2a85';
-    detail.textContent = pass ? 'Pass: >= 4.5:1 contrast ratio' : 'Warning: < 4.5:1 contrast ratio';
+    const passAAA = cr >= 7.0, passAA = cr >= 4.5;
+    const tier = passAAA ? 'AAA' : passAA ? 'AA' : 'FAIL';
+    const col = passAA ? '#34d399' : '#fb7185';
+    badge.textContent = `${cr.toFixed(1)}:1 WCAG ${tier}`;
+    badge.style.color = col;
+    badge.style.borderColor = col;
+    detail.textContent = passAA ? `Pass (${tier}): Foreground ${state.fg} on ${state.bg}` : `Low Contrast (${cr.toFixed(1)}:1 < 4.5:1)`;
   }
   function generateOutput() {
     const out = document.getElementById('code-out');
-    if (exportTab === 'json') { out.value = JSON.stringify(state, null, 2); return; }
-    if (exportTab === 'prompt') {
-      out.value = `Build a React + Tailwind "${state.kind}" component in "${state.state}" state with label "${state.label}", subtext "${state.sub}", accent ${state.accent}, secondary ${state.accent2}, surface ${state.bg}, text ${state.fg}, radius ${state.rad}px, glow ${state.glow}px, pulse=${state.pulse}, shimmer=${state.shimmer}.`;
+    if (exportTab === 'json') {
+      out.value = JSON.stringify(state, null, 2);
       return;
     }
-    const styleObj = `{ borderRadius: '${state.rad}px', background: '${state.bg}', color: '${state.fg}', border: '1px solid ${state.accent}', boxShadow: '0 ${Math.max(2, Math.round(state.glow * 0.4))}px ${state.glow}px ${state.accent}44' }`;
-    out.value = `<button type="button" disabled={${state.state === 'disabled'}} style={${styleObj}} className="px-5 py-2.5 font-mono text-xs font-bold">\n  ${state.state === 'loading' ? 'SYNCING...' : state.label}\n</button>`;
+    if (exportTab === 'prompt') {
+      out.value = `Build a ${state.kind.toUpperCase()} component in React + Tailwind CSS v4:\n- Label: "${state.label}" | Subtitle: "${state.sub}"\n- State: ${state.state} | Contrast: ${contrastRatio(state.fg, state.bg).toFixed(1)}:1\n- Tokens: primary ${state.accent}, secondary ${state.accent2}, text ${state.fg}, surface ${state.bg}, radius ${state.rad}px, glow ${state.glow}px\n- Include spring hover transition, radar pulse ring (${state.pulse}), and shimmer skeleton (${state.shimmer}).`;
+      return;
+    }
+    const styleObj = `{ background: '${state.bg}', color: '${state.fg}', borderRadius: '${state.rad}px', border: '1px solid ${state.accent}', boxShadow: '0 6px ${state.glow}px ${state.accent}55' }`;
+    if (state.kind === 'button') {
+      out.value = `<button type="button" disabled={${state.state === 'disabled'}} style={${styleObj}} className="px-5 py-2.5 font-mono font-bold tracking-wider transition-transform active:scale-95">\n  ${state.state === 'loading' ? 'SYNCING...' : state.label}\n</button>`;
+    } else if (state.kind === 'badge') {
+      out.value = `<span style={${styleObj}} className="inline-flex items-center gap-2 px-3 py-1 font-mono text-xs font-bold">\n  <span className="h-2 w-2 rounded-full" style={{ background: '${state.accent2}' }} />\n  ${state.label}\n</span>`;
+    } else if (state.kind === 'toggle') {
+      out.value = `<div style={${styleObj}} className="flex items-center gap-3 p-3 font-mono text-xs">\n  <input defaultValue="${inputVal}" className="bg-transparent border-b border-current px-2 py-1" />\n  <button type="button" className="px-2.5 py-1 rounded font-bold" style={{ background: '${state.accent}', color: '#000' }}>${toggleChecked ? 'ON' : 'OFF'}</button>\n</div>`;
+    } else {
+      out.value = `<div style={${styleObj}} className="p-4 font-mono">\n  <div className="text-xs font-bold">${state.label}</div>\n  <div className="text-[11px] opacity-80 mt-1">${state.sub}</div>\n</div>`;
+    }
   }
-  function renderDomShell() {
-    document.documentElement.style.setProperty('--accent', state.accent);
-    document.documentElement.style.setProperty('--accent2', state.accent2);
-    document.documentElement.style.setProperty('--fg', state.fg);
-    document.querySelectorAll('#theme-presets button').forEach(b => b.classList.toggle('active', b.dataset.theme === state.theme));
+  function syncInputs() {
     document.getElementById('ctl-kind').value = state.kind;
     document.getElementById('ctl-state').value = state.state;
     document.getElementById('ctl-label').value = state.label;
@@ -255,19 +287,23 @@
     document.getElementById('ctl-bg').value = state.bg;
     document.getElementById('ctl-rad').value = state.rad;
     document.getElementById('ctl-glow').value = state.glow;
-    document.getElementById('v-rad').textContent = state.rad + 'px';
-    document.getElementById('v-glow').textContent = state.glow + 'px';
-    document.getElementById('ctl-pulse').classList.toggle('active', state.pulse);
-    document.getElementById('ctl-shimmer').classList.toggle('active', state.shimmer);
+    document.getElementById('val-rad').textContent = state.rad + 'px';
+    document.getElementById('val-glow').textContent = state.glow + 'px';
+    document.getElementById('ctl-pulse').classList.toggle('active', !!state.pulse);
+    document.getElementById('ctl-shimmer').classList.toggle('active', !!state.shimmer);
+    document.querySelectorAll('#theme-presets button').forEach(b => b.classList.toggle('active', b.dataset.theme === state.theme));
+  }
+  function renderDomShell() {
+    syncInputs();
     const mount = document.getElementById('preview-mount');
     const dis = state.state === 'disabled';
-    const ld = state.state === 'loading';
+    const load = state.state === 'loading';
     const pulseHtml = state.pulse ? '<span class="radar-ring"></span>' : '';
-    const shimmerHtml = (ld || state.shimmer) ? '<div class="shimmer-skeleton" style="margin-top:8px"></div>' : '';
+    const shimmerHtml = (load && state.shimmer) ? '<div class="shimmer-skeleton" style="margin-top:8px;"></div>' : '';
     if (state.kind === 'button') {
-      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="display:inline-block;padding:11px 22px;font-weight:800;min-width:170px;">${pulseHtml}<span>${ld ? 'TRANSMITTING...' : state.label}</span>${shimmerHtml}</div>`;
+      mount.innerHTML = `<button type="button" class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" ${dis ? 'disabled' : ''} style="padding:11px 18px;font-weight:800;font-size:12px;letter-spacing:0.7px;">${pulseHtml}<span>${load ? 'SYNCING TELEMETRY...' : state.label}</span>${shimmerHtml}</button>`;
     } else if (state.kind === 'badge') {
-      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="display:inline-flex;flex-direction:column;gap:4px;padding:7px 14px;font-weight:700;font-size:11px;min-width:160px;">${pulseHtml}<div style="display:flex;align-items:center;gap:8px;"><span id="morph-dot" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span><span>${state.label}</span><span style="opacity:0.7;font-size:10px">${state.sub}</span></div>${state.shimmer ? '<div class="shimmer-skeleton" style="height:6px;margin-top:2px"></div>' : ''}</div>`;
+      mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;font-weight:700;font-size:11px;">${pulseHtml}<span id="morph-dot" style="width:8px;height:8px;border-radius:50%;background:${state.accent2};"></span><span>${load ? 'PROBING...' : state.label}</span></div>`;
     } else if (state.kind === 'toggle') {
       mount.innerHTML = `<div class="hud-target ${dis ? 'is-disabled' : ''}" id="morph-node" style="padding:10px 12px;display:flex;align-items:center;gap:8px;min-width:240px;">${pulseHtml}<input id="live-hud-input" type="text" value="${inputVal}" placeholder="${state.sub}" ${dis ? 'disabled' : ''} style="flex:1;min-width:0;background:rgba(0,0,0,0.35);color:inherit;border:1px solid rgba(255,255,255,0.2);padding:5px 7px;border-radius:6px;" /><button type="button" id="live-hud-switch" ${dis ? 'disabled' : ''} style="padding:5px 9px;font-weight:800;font-size:10px;border:none;border-radius:6px;">${toggleChecked ? 'ON' : 'OFF'}</button></div>`;
       const inp = document.getElementById('live-hud-input');
@@ -306,9 +342,9 @@
     if (dot) dot.style.background = state.accent2;
     const sw = document.getElementById('live-hud-switch');
     if (sw) { sw.style.background = toggleChecked ? state.accent : 'rgba(255,255,255,0.16)'; sw.style.color = '#000000'; }
-    requestAnimationFrame(stepMorph);
+    requestAnimationFrame(() => stepMorph(0.016));
   }
-  requestAnimationFrame(stepMorph);
+  requestAnimationFrame(() => stepMorph(0.016));
   function commit(nextPartial) {
     state = { ...state, ...nextPartial };
     const snap = JSON.stringify(state);
@@ -338,10 +374,10 @@
   document.querySelectorAll('#theme-presets button').forEach(b => {
     b.onclick = () => {
       const t = b.dataset.theme;
-      if (t === 'pink') commit({ theme: t, accent: '#ff2a85', accent2: '#00f0ff', bg: '#140612', fg: '#fff0f7' });
-      else if (t === 'rasta') commit({ theme: t, accent: '#39ff14', accent2: '#ffb800', bg: '#051108', fg: '#f2fff5' });
-      else if (t === 'hc') commit({ theme: t, accent: '#ffffff', accent2: '#00f0ff', bg: '#000000', fg: '#ffffff', glow: 12 });
-      else commit({ theme: 'cyan', accent: '#00f0ff', accent2: '#ff2a85', bg: '#081326', fg: '#eef7ff' });
+      if (t === 'emerald') commit({ theme: t, accent: '#10b981', accent2: '#38bdf8', bg: '#051510', fg: '#ecfdf5' });
+      else if (t === 'indigo') commit({ theme: t, accent: '#818cf8', accent2: '#c084fc', bg: '#0d0c22', fg: '#eef2ff' });
+      else if (t === 'hc') commit({ theme: t, accent: '#ffffff', accent2: '#38bdf8', bg: '#000000', fg: '#ffffff', glow: 12 });
+      else commit({ theme: 'cyan', accent: '#38bdf8', accent2: '#6366f1', bg: '#081326', fg: '#eef7ff' });
     };
   });
   document.getElementById('ctl-kind').onchange = e => commit({ kind: e.target.value });
