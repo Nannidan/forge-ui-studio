@@ -5,6 +5,8 @@ import {
   Check,
   Code2,
   Copy,
+  Download,
+  ExternalLink,
   Layers,
   Palette,
   Redo2,
@@ -65,7 +67,6 @@ export default function App() {
   const activeOutput =
     exportTab === 'code' ? reactCode : exportTab === 'css' ? cssTokens : aiPrompt
 
-  // Keyboard shortcuts: Ctrl/Cmd + Z = Undo, Ctrl/Cmd + Shift + Z = Redo
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (!(e.metaKey || e.ctrlKey)) return
@@ -109,6 +110,18 @@ export default function App() {
     }
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1800)
+  }
+
+  function downloadOutput() {
+    const ext = exportTab === 'code' ? 'tsx' : exportTab === 'css' ? 'css' : 'txt'
+    const filename = `forge-${state.component}.${ext}`
+    const blob = new Blob([activeOutput], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   const tokensSection = (
@@ -320,23 +333,34 @@ export default function App() {
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void copyOutput()}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1 font-mono text-xs font-semibold text-zinc-100 transition-colors hover:border-cyan-500/60"
-        >
-          {copied ? (
-            <>
-              <Check className="h-3.5 w-3.5 text-emerald-400" />
-              Copied
-            </>
-          ) : (
-            <>
-              <Copy className="h-3.5 w-3.5 text-cyan-400" />
-              Copy
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={downloadOutput}
+            aria-label="Download file"
+            className="inline-flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1 font-mono text-xs font-semibold text-zinc-300 transition-colors hover:border-cyan-500/60 hover:text-zinc-100"
+          >
+            <Download className="h-3.5 w-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Save</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => void copyOutput()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1 font-mono text-xs font-semibold text-zinc-100 transition-colors hover:border-cyan-500/60"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                Copied
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5 text-cyan-400" />
+                Copy
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <pre className="flex-1 overflow-auto p-3.5 font-mono text-xs leading-relaxed text-zinc-300">
@@ -379,7 +403,6 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-1.5">
-              {/* Undo / Redo */}
               <div className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-0.5">
                 <button
                   type="button"
@@ -433,6 +456,18 @@ export default function App() {
               >
                 <RotateCcw className="h-3.5 w-3.5" />
               </button>
+
+              <a
+                href="https://github.com/Nannidan/forge-ui-studio"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="View source on GitHub"
+                title="View Source on GitHub"
+                className="hidden items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 font-mono text-xs text-zinc-300 transition-colors hover:border-cyan-500/50 hover:text-cyan-300 sm:inline-flex"
+              >
+                <span>Source</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
           </div>
 
@@ -457,7 +492,6 @@ export default function App() {
 
         {/* Main Workspace */}
         <main className="flex flex-1 flex-col gap-3 p-3 sm:p-4 lg:min-h-0 lg:flex-row lg:gap-4">
-          {/* Desktop Left Inspector Sidebar */}
           <aside className="hidden w-80 shrink-0 flex-col gap-5 overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 xl:w-96 lg:flex">
             <div>
               <div className="mb-3 flex items-center gap-2 border-b border-zinc-800 pb-2.5">
@@ -480,9 +514,7 @@ export default function App() {
             </div>
           </aside>
 
-          {/* Right / Main Stage: Stretchy Preview + Export */}
           <section className="flex min-w-0 flex-1 flex-col gap-3 lg:min-h-0 2xl:grid 2xl:grid-cols-12">
-            {/* Live Preview */}
             <div className="lg:min-h-0 lg:flex-1 2xl:col-span-7">
               <LivePreview
                 state={state}
@@ -490,12 +522,10 @@ export default function App() {
               />
             </div>
 
-            {/* Desktop Code Drawer */}
             <div className="hidden lg:block lg:h-64 lg:shrink-0 2xl:col-span-5 2xl:h-full">
               {exportPanel}
             </div>
 
-            {/* Mobile/Tablet Tabbed Dock */}
             <div className="flex flex-col gap-3 lg:hidden">
               <div className="grid grid-cols-3 gap-1 rounded-xl border border-zinc-800 bg-zinc-900 p-1">
                 <button
@@ -545,7 +575,6 @@ export default function App() {
           </section>
         </main>
 
-        {/* Saved Component Vault Drawer */}
         <VaultDrawer
           open={vaultOpen}
           onClose={() => setVaultOpen(false)}

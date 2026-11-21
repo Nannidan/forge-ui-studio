@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   AlertTriangle,
   ArrowRight,
@@ -13,6 +13,7 @@ import {
   Sun,
   Tablet,
   TrendingUp,
+  Zap,
 } from 'lucide-react'
 import {
   ACCENTS,
@@ -35,6 +36,7 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
   const [viewport, setViewport] = useState<ViewportMode>('desktop')
   const [canvasTheme, setCanvasTheme] = useState<'dark' | 'light'>('dark')
   const [showA11yDetails, setShowA11yDetails] = useState(false)
+  const [clickNotice, setClickNotice] = useState<string | null>(null)
 
   const a11y = useMemo(() => evaluateA11y(state, canvasTheme), [state, canvasTheme])
 
@@ -47,6 +49,12 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
 
   const isLoading = state.interaction === 'loading'
   const isDisabled = state.interaction === 'disabled'
+
+  function triggerPreviewClick(label: string) {
+    if (isDisabled || isLoading) return
+    setClickNotice(`onClick fired → "${label || 'Launch Project'}"`)
+    window.setTimeout(() => setClickNotice(null), 1800)
+  }
 
   const surfaceClass =
     state.surface === 'glass'
@@ -79,32 +87,28 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
       {/* Compact Canvas Toolbar */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-zinc-800 bg-zinc-900/70 px-3 py-2">
-        {/* Left: State Simulator Pills */}
-        <div className="flex items-center gap-2">
-          <div
-            role="group"
-            aria-label="Component interaction state"
-            className="flex rounded-lg border border-zinc-800 bg-zinc-950 p-0.5"
-          >
-            {INTERACTION_STATES.map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                aria-pressed={state.interaction === mode}
-                onClick={() => onInteractionChange(mode)}
-                className={`rounded-md px-2 py-1 font-mono text-[10px] font-semibold uppercase transition-colors ${
-                  state.interaction === mode
-                    ? 'bg-cyan-500 text-zinc-950'
-                    : 'text-zinc-400 hover:text-zinc-100'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
+        <div
+          role="group"
+          aria-label="Component interaction state"
+          className="flex rounded-lg border border-zinc-800 bg-zinc-950 p-0.5"
+        >
+          {INTERACTION_STATES.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={state.interaction === mode}
+              onClick={() => onInteractionChange(mode)}
+              className={`rounded-md px-2 py-1 font-mono text-[10px] font-semibold uppercase transition-colors ${
+                state.interaction === mode
+                  ? 'bg-cyan-500 text-zinc-950'
+                  : 'text-zinc-400 hover:text-zinc-100'
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
         </div>
 
-        {/* Right: Live A11y Contrast Badge + Viewport + Theme */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -192,7 +196,7 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
 
       {/* Stretchy Dotted Stage */}
       <div
-        className={`flex flex-1 min-h-[220px] items-center justify-center p-4 transition-colors sm:min-h-[280px] sm:p-8 ${
+        className={`relative flex flex-1 min-h-[220px] items-center justify-center p-4 transition-colors sm:min-h-[280px] sm:p-8 ${
           canvasTheme === 'dark' ? 'bg-zinc-950' : 'bg-zinc-100'
         }`}
         style={{
@@ -203,6 +207,21 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
           backgroundSize: '20px 20px',
         }}
       >
+        <AnimatePresence>
+          {clickNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              role="status"
+              className="absolute bottom-3 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-cyan-500/40 bg-zinc-900/95 px-3 py-1 font-mono text-[11px] text-cyan-300 shadow-lg"
+            >
+              <Zap className="h-3 w-3" />
+              {clickNotice}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <motion.div
           layout
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
@@ -216,6 +235,7 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
               disabled={isDisabled || isLoading}
               aria-busy={isLoading}
               aria-disabled={isDisabled}
+              onClick={() => triggerPreviewClick(state.ctaLabel)}
               className={`inline-flex items-center gap-2 font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95 disabled:cursor-not-allowed ${
                 state.padding === 'sm'
                   ? 'px-4 py-2 text-xs'
@@ -224,9 +244,9 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
                     : 'px-5 py-2.5 text-sm'
               } ${radius} ${
                 state.surface === 'outline'
-                  ? `bg-transparent border-2 ${accent.border} ${accent.text}`
+                  ? `bg-transparent border-2 ${accent.border}${accent.text}`
                   : state.surface === 'glass'
-                    ? `bg-zinc-900/70 backdrop-blur-md border ${accent.border} ${accent.text}`
+                    ? `bg-zinc-900/70 backdrop-blur-md border ${accent.border}${accent.text}`
                     : accent.bg
               } ${shadowClass}`}
             >
@@ -339,6 +359,7 @@ export function LivePreview({ state, onInteractionChange }: LivePreviewProps) {
                   <button
                     type="button"
                     disabled={isDisabled}
+                    onClick={() => triggerPreviewClick(state.ctaLabel)}
                     className={`mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all active:scale-95 disabled:cursor-not-allowed sm:text-sm ${accent.bg}`}
                   >
                     <span>{state.ctaLabel}</span>
