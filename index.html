@@ -10,5 +10,44 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+  
+<!-- FORGE-STUDIO-TAB-START -->
+<style>
+  #forge-studio-tab-bar {
+    position: fixed;
+    top: 10px;
+    right: 12px;
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 10px;
+    background: rgba(5, 10, 20, 0.92);
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    backdrop-filter: blur(8px);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  #forge-studio-tab-bar a {
+    padding: 6px 11px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    transition: transform 140ms ease, background 160ms ease;
+  }
+  #forge-studio-tab-bar a:hover {
+    background: rgba(0, 240, 255, 0.22);
+    transform: translateY(-1px);
+  }
+</style>
+<nav id="forge-studio-tab-bar" aria-label="Studio Navigation">
+  <a href="/forge-studio.html">FORGE // UI STUDIO &rarr;</a>
+</nav>
+<!-- FORGE-STUDIO-TAB-END -->
+
+</body>
 </html>
